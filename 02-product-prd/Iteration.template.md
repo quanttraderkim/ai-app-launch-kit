@@ -14,9 +14,11 @@
 
 ## Implementation Slices
 
-- [ ] <작게 검증 가능한 slice 1>
-- [ ] <작게 검증 가능한 slice 2>
-- [ ] <작게 검증 가능한 slice 3>
+각 slice는 **vertical slice**입니다. 한 slice가 데이터 → 로직 → UI → 검증을 한 번에 관통하고, 그 자체로 화면에서 보여줄 수 있어야(demoable) 합니다. "연출만", "로직만", "카피만" 같은 한 레이어짜리 작업으로 쪼개지 마세요 — 그러면 진전이 보이지 않고 곡선이 평평해집니다.
+
+- [ ] <데이터→로직→UI→검증을 관통하는, demoable한 slice 1>
+- [ ] <데이터→로직→UI→검증을 관통하는, demoable한 slice 2>
+- [ ] <데이터→로직→UI→검증을 관통하는, demoable한 slice 3>
 
 ## Validation Path
 

@@ -46,6 +46,15 @@ Open app -> Do core action -> See immediate result -> Save/share/continue -> Wan
 
 <TestFlight, web preview, Android internal testing, GitHub release 중 어떤 방식으로 사람에게 보여줄지 씁니다.>
 
+## Domain Glossary
+
+핵심 도메인 용어를 한 곳에 고정합니다. 같은 개념을 코드, 문서, 이슈, 대화에서 같은 단어로 부르면(ubiquitous language) 에이전트와의 협업에서 의미가 어긋나지 않습니다. 용어가 늘어나면 repo 루트의 `CONTEXT.md`로 옮겨 코드와 함께 관리합니다.
+
+| Term | Definition |
+| --- | --- |
+| <도메인 용어 1> | <이 프로젝트에서의 정확한 의미> |
+| <도메인 용어 2> | <이 프로젝트에서의 정확한 의미> |
+
 ## Learning Questions
 
 1. <사용자가 핵심 행동을 이해했는가?>

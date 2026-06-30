@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+#
+# TestFlight 자동 배포 예시 — ASC API 자동 서명 (signingStyle=automatic)
+#
+# 이 파일은 "참고용 템플릿"입니다. 그대로 실행하지 말고, <...> placeholder를
+# 프로젝트 값으로 바꾼 뒤 본인 repo로 복사해 쓰세요.
+#
+# 보안 원칙:
+#   - .p8, Key ID, Issuer ID, Team ID 같은 비밀/계정값은 절대 커밋하지 마세요.
+#   - 키체인이나 CI secret에서 읽어 환경변수로 주입하세요 (08-security 참고).
+#   - 이 .example 파일에는 실제 값을 채워 넣지 마세요.
+#
+# 왜 이 경로인가:
+#   초보자가 가장 많이 막히는 단계는 배포 인증서/provisioning을 수동으로 만드는 것입니다.
+#   ASC API key + signingStyle=automatic 을 쓰면 Xcode가 export 단계에서 배포 서명을
+#   자동 처리하므로 그 단계를 통째로 건너뜁니다. (04-app-store-connect-testflight/TestFlightRunbook.md 경로 B)
+
+set -euo pipefail
+
+# === 설정 (실제 값은 환경변수/키체인에서 주입) ===
+XCODE_PROJECT="${XCODE_PROJECT:-<XCODE_PROJECT>}"     # 예: Unity-iPhone.xcodeproj
+SCHEME="${SCHEME:-<SCHEME>}"                          # 예: Unity-iPhone
+ARCHIVE_PATH="${ARCHIVE_PATH:-build/App.xcarchive}"
+EXPORT_DIR="${EXPORT_DIR:-build/export}"
+APPLE_TEAM_ID="${APPLE_TEAM_ID:?set APPLE_TEAM_ID}"   # 미설정 시 즉시 중단
+ASC_KEY_ID="${ASC_KEY_ID:?set ASC_KEY_ID}"
+ASC_ISSUER_ID="${ASC_ISSUER_ID:?set ASC_ISSUER_ID}"
+P8_PATH="${P8_PATH:?set P8_PATH}"                     # 키체인에서 임시로 내보낸 .p8 경로 (사용 후 삭제 권장)
+
+# 0) (Unity 프로젝트만) Unity batchmode로 iOS Xcode 프로젝트를 먼저 export.
+#    네이티브 iOS 프로젝트면 이 단계는 생략하고 1)부터.
+#    "$UNITY_BIN" -batchmode -quit -projectPath "$UNITY_PROJECT" \
+#      -executeMethod BuildScript.PerformiOSBuild
+#    (batchmode 로그에 라이선스 경고가 떠도 export는 진행되는 경우가 많습니다.
+#     성공/실패는 로그 마지막 결과 줄로 판단하세요. — 06-debug-playbooks 참고)
+
+# 1) unsigned archive — 서명은 다음 export 단계에서 ASC API가 자동 처리
+xcodebuild -project "$XCODE_PROJECT" -scheme "$SCHEME" \
+  -configuration Release -archivePath "$ARCHIVE_PATH" \
+  -destination 'generic/platform=iOS' \
+  archive CODE_SIGNING_ALLOWED=NO
+
+# 2) ExportOptions.plist 작성 (자동 서명 + 업로드)
+cat > ExportOptions.plist <<PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>method</key><string>app-store-connect</string>
+  <key>destination</key><string>upload</string>
+  <key>teamID</key><string>${APPLE_TEAM_ID}</string>
+  <key>signingStyle</key><string>automatic</string>
+</dict>
+</plist>
+PLIST
+
+# 3) export + 업로드 (ASC API로 인증 → Xcode가 배포 서명까지 자동 수행)
+xcodebuild -exportArchive -archivePath "$ARCHIVE_PATH" \
+  -exportPath "$EXPORT_DIR" -exportOptionsPlist ExportOptions.plist \
+  -allowProvisioningUpdates \
+  -authenticationKeyPath "$P8_PATH" \
+  -authenticationKeyID "$ASC_KEY_ID" \
+  -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+
+echo "업로드 완료. 로그에 'Upload succeeded'와 'EXPORT SUCCEEDED'가 보여야 합니다."
+echo "다음: ASC API로 build processingState가 VALID인지 확인한 뒤 테스터 그룹에 활성화하세요."
+echo "      (TestFlightRunbook.md 'Verify Build Status' 참고)"

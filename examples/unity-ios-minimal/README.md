@@ -21,6 +21,10 @@ MyGame/
 
 첫 proof는 한 화면, 한 조작, 한 결과로 좁힙니다. 게임이라면 캐릭터 하나, 적 하나, 보상 하나, 성장 한 번처럼 사용자가 가치를 느끼는 가장 작은 루프를 닫습니다. 앱이라면 입력 하나, 결과 하나, 저장 또는 공유 하나로 충분합니다.
 
+## Deploy Script Example
+
+`deploy-testflight.sh.example`는 ASC API 자동 서명으로 TestFlight에 업로드하는 참고용 스크립트입니다. 그대로 실행하지 말고, placeholder를 본인 프로젝트 값으로 바꾸고 비밀값은 환경변수/키체인에서 주입한 뒤 본인 repo로 복사해 쓰세요. 단계별 설명은 `04-app-store-connect-testflight/TestFlightRunbook.md`의 경로 B에 있습니다.
+
 ## What Not To Copy Into Public Repo
 
 Unity Library 폴더, DerivedData, iOS archive, `.ipa`, signing certificate, provisioning profile, paid asset 원본은 public template repo에 넣지 않습니다.

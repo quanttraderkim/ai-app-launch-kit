@@ -22,7 +22,7 @@ scripts/bootstrap-project-docs.sh /path/to/my-app
 
 ## What This Kit Contains
 
-`00-start-here`에는 스터디 운영 방식과 첫 세팅 순서가 있습니다. `01-agent-operating-system`에는 에이전트에게 맡길 역할과 handoff 규칙이 있습니다. `02-product-prd`에는 PRD와 iteration 템플릿이 있습니다. `03-ios-unity-setup`에는 Xcode, Unity, iOS 빌드 준비 체크리스트가 있습니다. `04-app-store-connect-testflight`에는 App Store Connect와 TestFlight 준비 절차가 있습니다. `05-release-runbooks`에는 릴리즈 체크리스트와 Git source-of-truth 규칙이 있습니다. `06-debug-playbooks`에는 자주 막히는 signing, provisioning, upload 문제 해결법이 있습니다. `08-security`에는 공개 repo에 절대 넣으면 안 되는 정보와 키체인 사용법이 있습니다.
+`00-start-here`에는 스터디 운영 방식과 첫 세팅 순서가 있습니다. `01-agent-operating-system`에는 에이전트에게 맡길 역할과 handoff 규칙이 있습니다. `02-product-prd`에는 PRD와 iteration 템플릿이 있습니다. `03-ios-unity-setup`에는 Xcode, Unity, iOS 빌드 준비 체크리스트가 있습니다. `04-app-store-connect-testflight`에는 App Store Connect와 TestFlight 준비 절차, ASC API 자동 서명 배포 경로, 그리고 시뮬레이터 시각 검증 방법이 있습니다. `05-release-runbooks`에는 릴리즈 체크리스트와 Git source-of-truth 규칙이 있습니다. `06-debug-playbooks`에는 자주 막히는 signing, provisioning, upload 문제 해결법이 있습니다. `08-security`에는 공개 repo에 절대 넣으면 안 되는 정보와 키체인 사용법이 있습니다.
 
 ## Non-Negotiables
 
