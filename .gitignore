@@ -1,0 +1,16 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+*.p8
+*.cer
+*.mobileprovision
+*.xcarchive
+*.ipa
+DerivedData/
+build/
+tmp/
+node_modules/
+.python-version
+__pycache__/
+*.log
