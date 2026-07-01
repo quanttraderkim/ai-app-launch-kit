@@ -49,6 +49,7 @@ Unity batchmode 빌드 로그에 라이선스 토큰 경고가 떠도 export 자
 1. **테스터가 옛 빌드를 실행 중** — TestFlight 앱은 자동 업데이트가 아닙니다. `GET /v1/builds?filter[app]=<APP_ID>&sort=-uploadedDate` 로 최신 빌드 번호를 확인하고, 테스터가 그 번호를 설치했는지 확인하세요.
 2. **새 빌드가 테스터 그룹에 노출 안 됨** — `GET /v1/builds/<BUILD_ID>/betaGroups` 로 빌드가 그룹에 들어갔는지 보고, 없으면 `POST /v1/betaGroups/<GROUP_ID>/relationships/builds` 로 추가합니다. `buildBetaDetail.internalBuildState` 도 함께 확인합니다.
 3. **빌드 자체가 변경을 안 담음** — 커밋되지 않았거나 캐시된 소스로 빌드된 경우. 릴리즈는 커밋된 소스에서만 만들고, 업로드 전 시뮬레이터 시각 검증으로 화면을 눈으로 확인하세요(`04-app-store-connect-testflight/VisualVerification.md`).
+4. **업로드는 성공했는데 빌드가 목록에 안 뜸** — `altool`이 `UPLOAD SUCCEEDED`(delivery UUID까지)를 찍었는데도 `/v1/builds`에 수십 분~수 시간 나타나지 않을 수 있습니다. `GET /v1/buildUploads/<UUID>` 의 `attributes.state`를 확인하세요. `state`가 `PROCESSING`이고 `errors`가 비어 있으면 업로드는 정상이고 **Apple 서버 처리가 지연**되는 것이니 기다립니다. **재업로드하지 마세요** — 같은 build 번호가 중복됩니다. `errors`에 내용이 있으면 그게 실패 원인입니다.
 
 **테스터 피드백(스크린샷)도 API로 직접 볼 수 있습니다**: `GET /v1/apps/<APP_ID>/betaFeedbackScreenshotSubmissions?include=build&sort=-createdDate` 는 각 피드백의 코멘트·기기·**어느 빌드에 대한 것인지**·스크린샷 URL을 돌려줍니다. "어느 빌드가 문제인지"를 추측하지 말고 여기서 확정하세요.
 
