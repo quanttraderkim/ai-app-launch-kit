@@ -30,6 +30,8 @@ TestFlight는 같은 version/build 조합을 다시 받을 수 없습니다. bui
 
 시뮬레이터나 실기에서 소리가 안 나면, **iOS 무음(링/사일런트) 스위치** 때문일 수 있습니다. 게임·미디어 앱은 보통 무음 스위치를 무시하도록 `AVAudioSession`을 **Playback 카테고리**로 설정해야 합니다. Unity 기본값은 Ambient(무음 스위치를 따름)라, 무음 모드에서 소리가 사라집니다. 작은 네이티브 코드(`.mm`)로 세션 카테고리를 Playback으로 바꾸면 해결됩니다. "사운드가 없다"는 피드백의 상당수는 음원 문제가 아니라 이 세션 설정 문제입니다.
 
+**타이밍이 중요합니다.** 네이티브 카테고리 설정 코드가 빌드에 포함돼 있어도(Unity의 `Plugins/iOS/*.mm`은 meta가 최소여도 자동 링크됨) 호출 시점이 늦으면 Unity가 자체 오디오 세션을 설정한 뒤라 안 먹힐 수 있습니다. `Start()`뿐 아니라 앱 시작 시점(`[RuntimeInitializeOnLoadMethod]`)에도 카테고리를 설정하면 Playback이 안정적으로 유지됩니다. `.mm`이 실제 빌드에 들어갔는지는 export된 Xcode 프로젝트(`Libraries/.../Plugins/iOS/`)에서 확인할 수 있습니다. 그래도 실기에서 안 들리면 음원 볼륨·길이도 함께 의심합니다.
+
 ## macOS Tooling Gaps
 
 에이전트가 자주 부딪히는 기본 macOS 환경의 빈틈입니다.
