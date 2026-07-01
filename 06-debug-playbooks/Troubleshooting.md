@@ -42,6 +42,16 @@ TestFlight는 같은 version/build 조합을 다시 받을 수 없습니다. bui
 
 Unity batchmode 빌드 로그에 라이선스 토큰 경고가 떠도 export 자체는 진행되는 경우가 많습니다. 성공/실패는 로그 중간의 경고가 아니라 **마지막 결과 줄**(`export succeeded` 또는 컴파일 에러)로 판단하세요.
 
+## Uploaded Build Looks Unchanged to Testers
+
+테스터가 "새 빌드인데 그대로다"라고 하면, 업로드가 안 된 것으로 단정하지 말고 **App Store Connect API로 사실을 확인**하세요. 기록이나 추측이 아니라 실제 상태가 답입니다. 흔한 원인은 세 가지입니다.
+
+1. **테스터가 옛 빌드를 실행 중** — TestFlight 앱은 자동 업데이트가 아닙니다. `GET /v1/builds?filter[app]=<APP_ID>&sort=-uploadedDate` 로 최신 빌드 번호를 확인하고, 테스터가 그 번호를 설치했는지 확인하세요.
+2. **새 빌드가 테스터 그룹에 노출 안 됨** — `GET /v1/builds/<BUILD_ID>/betaGroups` 로 빌드가 그룹에 들어갔는지 보고, 없으면 `POST /v1/betaGroups/<GROUP_ID>/relationships/builds` 로 추가합니다. `buildBetaDetail.internalBuildState` 도 함께 확인합니다.
+3. **빌드 자체가 변경을 안 담음** — 커밋되지 않았거나 캐시된 소스로 빌드된 경우. 릴리즈는 커밋된 소스에서만 만들고, 업로드 전 시뮬레이터 시각 검증으로 화면을 눈으로 확인하세요(`04-app-store-connect-testflight/VisualVerification.md`).
+
+**테스터 피드백(스크린샷)도 API로 직접 볼 수 있습니다**: `GET /v1/apps/<APP_ID>/betaFeedbackScreenshotSubmissions?include=build&sort=-createdDate` 는 각 피드백의 코멘트·기기·**어느 빌드에 대한 것인지**·스크린샷 URL을 돌려줍니다. "어느 빌드가 문제인지"를 추측하지 말고 여기서 확정하세요.
+
 ## Secret Accidentally Committed
 
 즉시 해당 secret을 revoke하거나 재발급합니다. Git history에서 제거하는 것만으로는 충분하지 않습니다. public repo에 push된 secret은 이미 노출된 것으로 취급합니다.

@@ -99,6 +99,8 @@ xcodebuild -exportArchive -archivePath <ARCHIVE_PATH> \
 
 App Store Connect에서 processing이 끝났는지 확인합니다. 내부 테스트 그룹을 선택하고 build를 활성화합니다. export compliance, missing metadata, beta review, age rating 같은 추가 질문이 뜨면 한 번에 하나씩 처리합니다.
 
+**업로드 성공이 "테스터가 새 빌드를 본다"는 뜻은 아닙니다.** processing이 `VALID`가 되고, 그 빌드가 테스터 그룹에 노출되어야 합니다. API로 확인·활성화할 수 있습니다: `GET /v1/builds/<BUILD_ID>/betaGroups` 로 노출 여부를 보고, 없으면 `POST /v1/betaGroups/<GROUP_ID>/relationships/builds` 로 추가합니다. TestFlight 앱은 자동 업데이트가 아니므로 테스터에게 최신 빌드 번호를 설치하라고 안내하세요. (빌드가 그대로처럼 보일 때의 진단은 `06-debug-playbooks/Troubleshooting.md` 참고.)
+
 ## Visual Verification (업로드 전 권장)
 
 겉으로 빌드가 성공해도 레이아웃·에셋·색이 깨질 수 있습니다. 업로드 전 **시뮬레이터에서 핵심 화면을 캡처해 눈으로 확인**하면 깨진 빌드를 테스터에게 보내기 전에 잡습니다. 상세 방법은 `04-app-store-connect-testflight/VisualVerification.md` 참고.
