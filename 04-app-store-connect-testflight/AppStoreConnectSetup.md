@@ -1,5 +1,7 @@
 # App Store Connect Setup
 
+> **Last verified:** 2026-07-02 · **Verified with:** Unity 6000.3.18f1, `xcodebuild`, App Store Connect API, macOS 15+ · **Scope:** App Store Connect 앱 등록·API 키·자동 서명 준비 · **Known drift risk:** Apple이 App Store Connect UI/API와 서명 흐름을 종종 바꿉니다 — 화면·필드가 다르면 최신 Apple 문서를 기준으로 하세요.
+
 이 문서는 iOS 앱을 TestFlight로 올리기 위해 필요한 App Store Connect 준비 흐름입니다. 실제 계정값은 공개 repo에 쓰지 않고 placeholder로 남깁니다.
 
 ## Required Decisions

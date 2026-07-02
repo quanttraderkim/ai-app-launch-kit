@@ -1,5 +1,7 @@
 # Visual Verification
 
+> **Last verified:** 2026-07-02 · **Verified with:** Unity 6000.3.18f1 batchmode, `xcodebuild -sdk iphonesimulator`, `xcrun simctl`(iPhone 17), macOS 15+ · **Scope:** 시뮬레이터 빌드·부팅·스크린샷 검증 · **Known drift risk:** `simctl` 서브커맨드와 기본 시뮬레이터 기기명이 Xcode 버전마다 바뀝니다.
+
 빌드가 컴파일·업로드에 성공해도 화면에서 레이아웃이 깨지거나, 에셋이 안 보이거나, 색이 뒤집힐 수 있습니다. **시뮬레이터에서 핵심 화면을 캡처해 눈으로 확인**하면 깨진 빌드를 테스터에게 보내기 전에 잡습니다. "검증을 증거로 남긴다"는 접근으로, 자동화된 시각 확인을 빠른 피드백 루프로 씁니다.
 
 ## 기본 흐름 (네이티브 / Unity 공통)

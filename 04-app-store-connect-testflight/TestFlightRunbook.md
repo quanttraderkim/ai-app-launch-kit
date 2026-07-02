@@ -1,5 +1,7 @@
 # TestFlight Runbook
 
+> **Last verified:** 2026-07-02 · **Verified with:** Unity 6000.3.18f1, `xcodebuild`(iOS device archive + `-exportArchive` 자동 서명 업로드), App Store Connect API, macOS 15+ · **Scope:** device archive → ASC API 자동 서명 업로드 → TestFlight 처리·노출 · **Known drift risk:** `xcodebuild -exportArchive` 옵션과 ASC API 엔드포인트가 버전마다 달라질 수 있습니다.
+
 TestFlight는 "완성된 앱을 올리는 곳"이 아니라, 실제 사람이 만질 수 있는 빌드를 안전하게 배포하고 배우는 lane입니다. 모든 작은 변경을 올릴 필요는 없고, 사용자가 체감할 수 있는 iteration bundle이나 심각한 UX/hotfix 단위로 올립니다.
 
 ## Before Upload

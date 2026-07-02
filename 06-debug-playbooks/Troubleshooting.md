@@ -1,5 +1,7 @@
 # Troubleshooting
 
+> **Last verified:** 2026-07-02 · **Verified with:** Unity 6000.3.18f1, `xcodebuild` / Xcode, App Store Connect API, macOS 15+ · **Scope:** signing·provisioning·업로드·processing 문제 · **Known drift risk:** 에러 메시지 문구와 ASC 처리 동작이 Apple 툴링 변경에 따라 달라집니다.
+
 이 문서는 iOS/TestFlight 준비 중 자주 막히는 문제를 정리합니다. 실제 에러 메시지는 Xcode, App Store Connect, Apple Developer 정책 변경에 따라 달라질 수 있으므로, 마지막 판단은 현재 도구의 메시지를 기준으로 합니다.
 
 ## Apple Developer Team ID Missing
