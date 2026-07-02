@@ -1,0 +1,49 @@
+name: kit-hygiene
+
+# Public-kit hygiene checks so small regressions (leaked secrets, broken
+# shell scripts) are caught before another user clones the repo. See issue #1.
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  hygiene:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install ripgrep (required by check-no-secrets.sh)
+        run: sudo apt-get update && sudo apt-get install -y ripgrep
+
+      - name: Secret-shaped content scan
+        run: bash scripts/check-no-secrets.sh .
+
+      - name: Shell syntax check (scripts + example scripts)
+        run: |
+          shopt -s nullglob globstar
+          files=(scripts/**/*.sh examples/**/*.sh.example)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No shell files to check."
+            exit 0
+          fi
+          rc=0
+          for f in "${files[@]}"; do
+            echo "bash -n $f"
+            bash -n "$f" || rc=1
+          done
+          exit $rc
+
+      - name: shellcheck (advisory, non-blocking)
+        continue-on-error: true
+        run: |
+          sudo apt-get install -y shellcheck
+          shopt -s nullglob globstar
+          scripts=(scripts/**/*.sh)
+          if [ ${#scripts[@]} -gt 0 ]; then
+            shellcheck "${scripts[@]}" || true
+          fi
