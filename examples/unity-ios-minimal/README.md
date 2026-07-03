@@ -69,6 +69,12 @@ MyGame/
 - **특성은 계수 + 틴트로.** 같은 스프라이트에 색만 입혀(강타형=붉게·공격 1.5배/HP 0.8배, 방어형=푸르게·공격 0.7배/HP 1.6배) 종류를 구분하면, 데미지 공식의 항 하나씩만 건드리는 적 특성이 값싸게 생깁니다. 종류 배정도 `kills % 5` 같은 결정적 규칙이면 테스트 가능합니다.
 - **보스는 스테이지의 클라이맥스에.** 보스를 "깊이 5의 배수"처럼 진행도에 걸면 팩/스테이지와 어긋나 어중간한 타이밍에 나옵니다. "매 3번째 스테이지의 마지막 몹"처럼 **스테이지 경계에 정렬**하면 정비 직전의 클라이맥스가 됩니다.
 
+## Feedback → Build Case Study
+
+실기 피드백 5건이 핫픽스·경제 개편·설계 수정 세 갈래로 갈라진 실제 3일 기록과 판단
+순서(트라아지→역산 디버깅→가시화→딥런 검증→크래시 재현)는
+[FeedbackToBuild-CaseStudy.md](FeedbackToBuild-CaseStudy.md)에 있습니다.
+
 ## Deploy Script Example
 
 `deploy-testflight.sh.example`는 ASC API 자동 서명으로 TestFlight에 업로드하는 참고용 스크립트입니다. 그대로 실행하지 말고, placeholder를 본인 프로젝트 값으로 바꾸고 비밀값은 환경변수/키체인에서 주입한 뒤 본인 repo로 복사해 쓰세요. 단계별 설명은 `04-app-store-connect-testflight/TestFlightRunbook.md`의 경로 B에 있습니다.
