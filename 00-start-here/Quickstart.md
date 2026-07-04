@@ -21,3 +21,10 @@
 ## Done Criteria For Day 1
 
 Day 1이 끝날 때 필요한 것은 거대한 앱이 아니라 명확한 방향입니다. `Docs/PRD.md`가 있고, 첫 proof 범위가 있고, 개발환경 blocker가 정리되어 있고, Git repo에 첫 커밋이 있으면 충분합니다.
+
+## Real Example First (선택)
+
+템플릿이 추상적으로 느껴지면 실제 사례부터: `examples/unity-ios-minimal/PrototypeJourney.md`
+— 19빌드짜리 실제 프로토타입 여정(무엇을 만들었고 어떤 함정을 밟았는지)과 이 kit의
+노하우 문서 지도가 30분 분량으로 정리되어 있습니다. 게임이 아닌 앱이라면
+`examples/walkthrough-streak/`가 최소 예시입니다.
