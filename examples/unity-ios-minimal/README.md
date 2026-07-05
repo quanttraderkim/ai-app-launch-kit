@@ -30,6 +30,23 @@ MyGame/
 - **기존 시스템 위에 점진적으로.** 새 성장(무기)을 기존 성장(강화)과 `max()`로 병행하면, 코어를 한 번에 갈아엎지 않고도 새 재미를 얹을 수 있습니다.
 - **에셋은 반복 생성.** 아이콘·스프라이트는 PixelLab 같은 도구로 만들고, 어긋나면(예: 활이 막대처럼 나옴) 프롬프트를 고쳐 그 하나만 재생성합니다. 애니·스프라이트 생성의 구체적 파이프라인과 함정은 `03-ios-unity-setup/PixelArtAnimationPipeline.md`를 참고하세요.
 
+## Headless Self-Check for Pure Models (테스트 프레임워크 없이 회귀 가드)
+
+순수 C# 모델(UnityEngine 무의존)의 **까다로운 불변식**은 테스트 프레임워크를 세팅하지
+않고도 에디터 `-executeMethod`로 헤드리스 검증할 수 있습니다. 실제로 값을 한 건: 드랍/머지/
+장착에서 "머지가 슬롯을 제거하면 저장된 장착 인덱스가 같은 아이템을 계속 가리키도록
+시프트해야 한다"는 off-by-one 취약 로직이 있었습니다.
+
+- **정적 메서드 하나 + `EditorApplication.Exit(code)`.** `#if UNITY_EDITOR` 안에 static
+  `Run()`을 두고, 결정적 시드로 드랍→장착→머지 시퀀스를 수백 번 돌려 불변식(예: 장착
+  인덱스는 항상 -1이거나 `[0, Count)`)을 assert합니다. 실패 수를 exit code로 반환하면
+  `Unity -batchmode -quit -executeMethod ...ModelSelfCheck.Run`이 CI 스텝으로 바로 붙습니다.
+- **로그 마커로 grep.** `Debug.Log("MODEL_SELFCHECK_OK")` / `LogError(...FAILED...)`를 찍고
+  배치 로그를 grep하면 통과/실패가 한 줄로 잡힙니다(sim 스크린샷 파이프라인과 같은 방식).
+- **왜 sim이 아니라 이걸로?** UI/autoplay sim은 장착을 안 하고 흐름만 봅니다. 장착 인덱스
+  시프트 같은 순수 로직은 화면에 안 드러나므로, 순수 모델을 직접 두들기는 헤드리스 검증이
+  더 싸고 결정적입니다. 순수 모델과 UI를 분리해둔 보상이 여기서 나옵니다.
+
 ## Reworking the Core Loop in Slices (static → moving)
 
 작은 피처만 slice로 끊는 게 아니라 **코어 루프 자체를 크게 바꿀 때도** 같은 방식이 안전합니다. 정적 1:1 전투("탭해서 공격")를 던전을 이동하며 싸우는 자동 크롤러로 옮긴 경험:
