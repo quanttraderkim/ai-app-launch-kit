@@ -53,7 +53,8 @@ PATCH /v1/appScreenshots/{id} {uploaded: true, sourceFileChecksum: <md5>}
 ```
 GET /v1/apps/<APP_ID>/betaFeedbackScreenshotSubmissions?sort=-createdDate
 GET /v1/apps/<APP_ID>/betaFeedbackCrashSubmissions
-GET /v1/betaTesters/<ID>/metrics/betaTesterUsages?period=P7D   (설치/세션/크래시 수)
+GET /v1/betaTesters/<ID>/metrics/betaTesterUsages?period=P7D&filter[apps]=<APP_ID>
+    (세션/크래시/피드백 수 — filter[apps] 없으면 400. groupBy는 이 엔드포인트에서 미지원)
 ```
 
 - 피드백 `comment`, 기기 모델, OS 버전까지 옴. 응답 API는 없으므로 **다음 빌드의 What to Test 첫 줄에 반영 내역을 적는 것**이 실질적 회신
