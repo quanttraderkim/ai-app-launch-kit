@@ -27,7 +27,19 @@ color-hole-grid-puzzle/
   Levels/
     tutorial-001.json
     spread-demo-002.json
+  WebDemo/
+    index.html
+    styles.css
+    src/
+    data/
+    tests/
 ```
+
+## Browser Playable Proof
+
+[`WebDemo`](WebDemo/README.md)는 이 문서 계약을 엔진과 무관한 JavaScript로 실행하는 작은 검증용 웹 앱입니다. Play 탭은 `tutorial-001`의 1×2 수집 트레이, 한 칸씩 검사하는 드래그, 부분 충전, 제거, 승리와 재시작만 구현합니다. Spread Audit 탭은 `spread-demo-002`를 플레이 레벨이나 자동 생성 결과라고 가장하지 않고, 색별 거리·구역과 전체 2×2·3×3 밀도 계산을 읽기 전용으로 보여줍니다.
+
+로컬 실행과 테스트, Vercel preview 배포 방법은 [`WebDemo/README.md`](WebDemo/README.md)에 있습니다. 이 웹 proof가 Unity 모바일 proof를 대신하지는 않지만, 같은 레벨 데이터와 규칙 계층으로 문서가 실제 코드로 옮겨지는지 빠르게 확인할 수 있습니다.
 
 ## First Playable Proof
 

@@ -18,6 +18,7 @@
 | 2026-07-12 | Deferred | 타이머, 부스터, 엘리베이터와 특수 장애물, 광고, 재화, 자동 level generator와 solver는 first proof에서 구현하지 않는다. | 핵심 규칙의 이해도와 결정성을 먼저 확인해야 후속 시스템의 가치와 복잡도를 판단할 수 있다. | PRD의 stop condition을 통과한 뒤 한 기능씩 spec-test-data 세트로 제안한다. |
 | 2026-07-12 | Accepted | 후속 레벨 생성기는 자연어 자유 배치 대신 seeded farthest-point와 색별 거리·군집·region, 전체 region·2×2·3×3 제약을 사용한다. | 같은 색끼리 떨어져 있어도 여러 색 Passenger 전체가 한곳에 몰리는 문제까지 재현 가능한 수치와 자동 테스트로 막는다. | first proof 통과 뒤 `GEN-*` acceptance ID 순서로 구현한다. |
 | 2026-07-12 | Accepted | 생성 레벨은 기록된 forward trace replay와 trace를 읽지 않는 독립 solver를 모두 통과해야 채택한다. | 보기 좋은 분산 배치가 실제 이동 규칙에서는 풀리지 않는 문제를 막고, 기록 trace 자체의 오류도 잡는다. | solver budget 초과는 성공이나 unsolvable이 아니라 validation-inconclusive로 거부한다. |
+| 2026-07-12 | Accepted | 문서 계약의 실행 가능성을 확인하는 첫 웹 proof는 `tutorial-001`만 플레이하고, `spread-demo-002`는 읽기 전용 분산 검사 화면으로 분리한다. | first proof에 생성기·solver·타이머를 구현한 것처럼 보이지 않으면서 핵심 이동과 비군집 지표를 각각 검증할 수 있다. | 웹 core 테스트와 모바일 브라우저 smoke 결과를 handoff에 기록하고 Unity proof와 혼동하지 않는다. |
 
 ## New Decision Template
 

@@ -1,0 +1,144 @@
+{
+  "schemaVersion": 1,
+  "id": "tutorial-001",
+  "board": {
+    "width": 6,
+    "height": 6,
+    "origin": "top-left",
+    "mask": [
+      "111111",
+      "111111",
+      "111111",
+      "111111",
+      "111111",
+      "111111"
+    ]
+  },
+  "rules": {
+    "timeLimitSeconds": 0,
+    "mismatchedPassenger": "solid",
+    "collectionTiming": "on-cell-entry",
+    "dragPath": "orthogonal-sweep",
+    "diagonalTieBreak": "horizontal-first",
+    "win": {
+      "clearPassengers": true,
+      "completeRequiredHoles": true,
+      "emptySpawnQueues": true
+    }
+  },
+  "generation": {
+    "seed": 1103,
+    "algorithm": "seeded-farthest-point-blue-noise",
+    "candidateOrdering": "missing-region-then-distance-then-density",
+    "tieBreak": "seeded-hash-then-y-x",
+    "constraints": {
+      "appliesTo": "passengers-only",
+      "minimumSameColorManhattanDistance": 3,
+      "maximumSameColorClusterSize": 1,
+      "clusterAdjacency": "orthogonal",
+      "regionGrid": {
+        "columns": 2,
+        "rows": 2
+      },
+      "minimumRegionsPerColor": 2,
+      "maximumSameColorInAny2x2": 1,
+      "minimumOccupiedRegionsTotal": 2,
+      "maximumPassengersPerRegion": 1,
+      "maximumPassengersInAny2x2": 1,
+      "maximumPassengersInAny3x3": 1
+    },
+    "repair": {
+      "maximumMutations": 32,
+      "maximumSeedAttempts": 8,
+      "operators": [
+        "relocate-worst",
+        "swap-across-regions",
+        "reroute-trace-suffix"
+      ]
+    },
+    "solverValidation": {
+      "algorithm": "bfs",
+      "maximumVisitedStates": 100000,
+      "requireRecordedTraceReplay": true,
+      "requireIndependentSolution": true
+    }
+  },
+  "holes": [
+    {
+      "id": "orange-hole",
+      "colorId": "orange",
+      "anchor": {"x": 0, "y": 2},
+      "shape": [
+        {"x": 0, "y": 0},
+        {"x": 0, "y": 1}
+      ],
+      "initialFilledSlots": [],
+      "traits": []
+    }
+  ],
+  "passengers": [
+    {
+      "id": "orange-top",
+      "colorId": "orange",
+      "cell": {"x": 3, "y": 1},
+      "tags": []
+    },
+    {
+      "id": "orange-bottom",
+      "colorId": "orange",
+      "cell": {"x": 3, "y": 4},
+      "tags": []
+    }
+  ],
+  "obstacles": [],
+  "reverseGenerationTrace": [
+    {
+      "order": 1,
+      "holeId": "orange-hole",
+      "restoreAtAnchor": {"x": 3, "y": 3},
+      "undoCollections": [
+        {
+          "passengerId": "orange-bottom",
+          "slotIndex": 1,
+          "cell": {"x": 3, "y": 4},
+          "collectionAnchor": {"x": 3, "y": 3}
+        },
+        {
+          "passengerId": "orange-top",
+          "slotIndex": 0,
+          "cell": {"x": 3, "y": 1},
+          "collectionAnchor": {"x": 3, "y": 1}
+        }
+      ],
+      "reversePath": [
+        {"x": 3, "y": 3},
+        {"x": 3, "y": 2},
+        {"x": 3, "y": 1},
+        {"x": 2, "y": 1},
+        {"x": 2, "y": 2},
+        {"x": 1, "y": 2},
+        {"x": 0, "y": 2}
+      ]
+    }
+  ],
+  "solutionTrace": [
+    {
+      "order": 1,
+      "holeId": "orange-hole",
+      "path": [
+        {"x": 0, "y": 2},
+        {"x": 1, "y": 2},
+        {"x": 2, "y": 2},
+        {"x": 2, "y": 1},
+        {"x": 3, "y": 1},
+        {"x": 3, "y": 2},
+        {"x": 3, "y": 3}
+      ],
+      "expectedCollections": [
+        {"passengerId": "orange-top", "slotIndex": 0},
+        {"passengerId": "orange-bottom", "slotIndex": 1}
+      ],
+      "expectedHoleRemoved": true
+    }
+  ]
+}
