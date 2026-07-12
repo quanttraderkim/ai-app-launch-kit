@@ -24,6 +24,10 @@ scripts/bootstrap-project-docs.sh /path/to/my-app
 
 `00-start-here`에는 스터디 운영 방식과 첫 세팅 순서가 있습니다. `01-agent-operating-system`에는 에이전트에게 맡길 역할과 handoff 규칙이 있습니다. `02-product-prd`에는 PRD와 iteration 템플릿이 있습니다. `03-ios-unity-setup`에는 Xcode, Unity, iOS 빌드 준비 체크리스트와, 게임용 픽셀아트·애니메이션 생성 파이프라인(`PixelArtAnimationPipeline.md`), 코드로 그린 UI를 게임처럼 다듬는 방법(`GameFeelUI.md`)이 있습니다. `04-app-store-connect-testflight`에는 App Store Connect와 TestFlight 준비 절차, ASC API 자동 서명 배포 경로, 시뮬레이터 시각 검증 방법, 그리고 스토어 문안·스크린샷·IAP·연령등급·테스터 피드백 수신까지 UI 없이 처리하는 ASC API 운영 런북(`ASCApiStoreOps.md`)이 있습니다. `05-release-runbooks`에는 릴리즈 체크리스트와 Git source-of-truth 규칙이 있습니다. `06-debug-playbooks`에는 자주 막히는 signing, provisioning, upload 문제 해결법이 있습니다. `08-security`에는 공개 repo에 절대 넣으면 안 되는 정보와 키체인 사용법이 있습니다.
 
+## Examples
+
+[Unity iOS Minimal Example](examples/unity-ios-minimal/README.md)은 큰 binary나 signing 파일 없이 Unity iOS 프로젝트의 최소 구조를 설명합니다. [Color-Hole Grid Puzzle Example](examples/color-hole-grid-puzzle/README.md)은 상용 퍼즐의 표현물을 복제하지 않고 색상 수집형 격자 퍼즐을 독자적으로 설계하는 문서 중심 예시이며, 결정론적 이동뿐 아니라 같은 색과 전체 Passenger가 몰리지 않는 레벨 배치, repair와 solver 검증 절차까지 포함합니다.
+
 ## Non-Negotiables
 
 이 저장소에는 Apple Developer Team ID, 실제 bundle identifier, App Store Connect API key, `.p8` private key, 인증서, provisioning profile, 개인 이메일, TestFlight tester 목록, 유료 에셋 원본, 서비스 비밀값을 넣지 않습니다. 모든 계정별 값은 `<APPLE_TEAM_ID>`, `<BUNDLE_ID>`, `<ASC_KEY_ID>`, `<ASC_ISSUER_ID>`, `<PATH_TO_PRIVATE_KEY_P8>`처럼 placeholder로 남깁니다.

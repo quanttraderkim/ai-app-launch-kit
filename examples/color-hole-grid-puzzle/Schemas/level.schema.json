@@ -1,0 +1,510 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/schemas/color-hole-grid-puzzle-level-v1.schema.json",
+  "title": "Color Hole Grid Puzzle Level",
+  "description": "Engine-neutral level contract for an original color-slot grid puzzle.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "id",
+    "board",
+    "rules",
+    "generation",
+    "holes",
+    "passengers",
+    "obstacles",
+    "reverseGenerationTrace",
+    "solutionTrace"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "board": {
+      "$ref": "#/$defs/board"
+    },
+    "rules": {
+      "$ref": "#/$defs/rules"
+    },
+    "generation": {
+      "$ref": "#/$defs/generation"
+    },
+    "holes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/hole"
+      }
+    },
+    "passengers": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/passenger"
+      }
+    },
+    "obstacles": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/obstacle"
+      }
+    },
+    "reverseGenerationTrace": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/reverseStep"
+      }
+    },
+    "solutionTrace": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/solutionStep"
+      }
+    }
+  },
+  "$defs": {
+    "point": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x", "y"],
+      "properties": {
+        "x": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "y": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "board": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["width", "height", "origin", "mask"],
+      "properties": {
+        "width": {
+          "type": "integer",
+          "minimum": 2
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 2
+        },
+        "origin": {
+          "const": "top-left"
+        },
+        "mask": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "string",
+            "pattern": "^[01]+$"
+          }
+        }
+      }
+    },
+    "rules": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "timeLimitSeconds",
+        "mismatchedPassenger",
+        "collectionTiming",
+        "dragPath",
+        "diagonalTieBreak",
+        "win"
+      ],
+      "properties": {
+        "timeLimitSeconds": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "0 disables the timer for the first playable proof."
+        },
+        "mismatchedPassenger": {
+          "const": "solid"
+        },
+        "collectionTiming": {
+          "const": "on-cell-entry"
+        },
+        "dragPath": {
+          "const": "orthogonal-sweep"
+        },
+        "diagonalTieBreak": {
+          "const": "horizontal-first"
+        },
+        "win": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["clearPassengers", "completeRequiredHoles", "emptySpawnQueues"],
+          "properties": {
+            "clearPassengers": {
+              "const": true
+            },
+            "completeRequiredHoles": {
+              "const": true
+            },
+            "emptySpawnQueues": {
+              "const": true
+            }
+          }
+        }
+      }
+    },
+    "generation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "seed",
+        "algorithm",
+        "candidateOrdering",
+        "tieBreak",
+        "constraints",
+        "repair",
+        "solverValidation"
+      ],
+      "properties": {
+        "seed": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "algorithm": {
+          "const": "seeded-farthest-point-blue-noise"
+        },
+        "candidateOrdering": {
+          "const": "missing-region-then-distance-then-density"
+        },
+        "tieBreak": {
+          "const": "seeded-hash-then-y-x"
+        },
+        "constraints": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "appliesTo",
+            "minimumSameColorManhattanDistance",
+            "maximumSameColorClusterSize",
+            "clusterAdjacency",
+            "regionGrid",
+            "minimumRegionsPerColor",
+            "maximumSameColorInAny2x2",
+            "minimumOccupiedRegionsTotal",
+            "maximumPassengersPerRegion",
+            "maximumPassengersInAny2x2",
+            "maximumPassengersInAny3x3"
+          ],
+          "properties": {
+            "appliesTo": {
+              "const": "passengers-only"
+            },
+            "minimumSameColorManhattanDistance": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "maximumSameColorClusterSize": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "clusterAdjacency": {
+              "const": "orthogonal"
+            },
+            "regionGrid": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["columns", "rows"],
+              "properties": {
+                "columns": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "rows": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "minimumRegionsPerColor": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "maximumSameColorInAny2x2": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 4
+            },
+            "minimumOccupiedRegionsTotal": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "maximumPassengersPerRegion": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "maximumPassengersInAny2x2": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 4
+            },
+            "maximumPassengersInAny3x3": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9
+            }
+          }
+        },
+        "repair": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["maximumMutations", "maximumSeedAttempts", "operators"],
+          "properties": {
+            "maximumMutations": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "maximumSeedAttempts": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "operators": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "enum": [
+                  "relocate-worst",
+                  "swap-across-regions",
+                  "reroute-trace-suffix"
+                ]
+              }
+            }
+          }
+        },
+        "solverValidation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "algorithm",
+            "maximumVisitedStates",
+            "requireRecordedTraceReplay",
+            "requireIndependentSolution"
+          ],
+          "properties": {
+            "algorithm": {
+              "enum": ["bfs", "a-star", "ida-star"]
+            },
+            "maximumVisitedStates": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "requireRecordedTraceReplay": {
+              "const": true
+            },
+            "requireIndependentSolution": {
+              "const": true
+            }
+          }
+        }
+      }
+    },
+    "hole": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "colorId", "anchor", "shape", "initialFilledSlots", "traits"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "colorId": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "anchor": {
+          "$ref": "#/$defs/point"
+        },
+        "shape": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/point"
+          }
+        },
+        "initialFilledSlots": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "traits": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$"
+          }
+        }
+      }
+    },
+    "passenger": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "colorId", "cell", "tags"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "colorId": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "cell": {
+          "$ref": "#/$defs/point"
+        },
+        "tags": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$"
+          }
+        }
+      }
+    },
+    "obstacle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "cells"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "kind": {
+          "const": "wall"
+        },
+        "cells": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/point"
+          }
+        }
+      }
+    },
+    "expectedCollection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["passengerId", "slotIndex"],
+      "properties": {
+        "passengerId": {
+          "type": "string"
+        },
+        "slotIndex": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "solutionStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["order", "holeId", "path", "expectedCollections", "expectedHoleRemoved"],
+      "properties": {
+        "order": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "holeId": {
+          "type": "string"
+        },
+        "path": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "$ref": "#/$defs/point"
+          }
+        },
+        "expectedCollections": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/expectedCollection"
+          }
+        },
+        "expectedHoleRemoved": {
+          "type": "boolean"
+        }
+      }
+    },
+    "undoCollection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["passengerId", "slotIndex", "cell", "collectionAnchor"],
+      "properties": {
+        "passengerId": {
+          "type": "string"
+        },
+        "slotIndex": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "cell": {
+          "$ref": "#/$defs/point"
+        },
+        "collectionAnchor": {
+          "$ref": "#/$defs/point"
+        }
+      }
+    },
+    "reverseStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "order",
+        "holeId",
+        "restoreAtAnchor",
+        "undoCollections",
+        "reversePath"
+      ],
+      "properties": {
+        "order": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "holeId": {
+          "type": "string"
+        },
+        "restoreAtAnchor": {
+          "$ref": "#/$defs/point"
+        },
+        "undoCollections": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/undoCollection"
+          }
+        },
+        "reversePath": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "$ref": "#/$defs/point"
+          }
+        }
+      }
+    }
+  }
+}
