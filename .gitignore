@@ -11,6 +11,7 @@ DerivedData/
 build/
 tmp/
 node_modules/
+.vercel/
 .python-version
 __pycache__/
 *.log

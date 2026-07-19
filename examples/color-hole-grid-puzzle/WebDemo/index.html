@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#171a26" />
+    <meta
+      name="description"
+      content="An original, model-first grid puzzle proof and passenger spread audit."
+    />
+    <title>Grid Bloom Lab</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to demo</a>
+
+    <div class="app-shell" id="app" aria-busy="true">
+      <header class="app-header">
+        <div class="brand-lockup">
+          <span class="brand-mark" aria-hidden="true">
+            <span></span><span></span><span></span><span></span>
+          </span>
+          <span>
+            <span class="eyebrow">MODEL-FIRST PLAYGROUND</span>
+            <span class="brand-name">Grid Bloom Lab</span>
+          </span>
+        </div>
+        <span class="load-status" id="load-status" role="status">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span id="load-status-text">Loading</span>
+        </span>
+      </header>
+
+      <nav class="mode-tabs" aria-label="Demo mode" role="tablist">
+        <button
+          class="mode-tab is-active"
+          id="play-tab"
+          type="button"
+          role="tab"
+          aria-selected="true"
+          aria-controls="play-panel"
+          data-tab="play"
+        >
+          <span aria-hidden="true">◆</span> Play
+        </button>
+        <button
+          class="mode-tab"
+          id="audit-tab"
+          type="button"
+          role="tab"
+          aria-selected="false"
+          aria-controls="audit-panel"
+          data-tab="audit"
+        >
+          <span aria-hidden="true">⌗</span> Spread Audit
+        </button>
+      </nav>
+
+      <main id="main-content">
+        <section
+          class="mode-panel play-panel"
+          id="play-panel"
+          role="tabpanel"
+          aria-labelledby="play-tab"
+        >
+          <div class="panel-heading play-heading">
+            <div>
+              <p class="section-label">PLAYABLE PROOF · UNTIMED</p>
+              <h1>Guide the tray to both markers.</h1>
+              <p class="panel-summary">
+                Every step is resolved on the integer grid before the view responds.
+              </p>
+            </div>
+            <div class="slot-meter" aria-live="polite">
+              <span class="slot-meter-label">SLOTS</span>
+              <span class="slot-pips" id="slot-pips" aria-hidden="true"></span>
+              <strong id="slot-count">0 / 2</strong>
+            </div>
+          </div>
+
+          <div class="play-layout">
+            <div class="board-column">
+              <div class="board-frame play-board-frame">
+                <span class="frame-corner corner-one" aria-hidden="true"></span>
+                <span class="frame-corner corner-two" aria-hidden="true"></span>
+                <div
+                  class="board-grid is-loading"
+                  id="play-board"
+                  role="application"
+                  tabindex="0"
+                  aria-label="Six by six puzzle board. Drag the patterned two-cell tray or use arrow keys."
+                  aria-describedby="play-help"
+                >
+                  <span class="board-loading">Preparing grid…</span>
+                </div>
+                <div class="victory-overlay" id="victory-overlay" hidden>
+                  <div class="victory-card" role="dialog" aria-modal="false" aria-labelledby="victory-title">
+                    <span class="victory-sigil" aria-hidden="true">✦</span>
+                    <p class="section-label">ROUTE COMPLETE</p>
+                    <h2 id="victory-title">Both slots found a match.</h2>
+                    <p>The logical board is clear. The celebration only reads that result.</p>
+                    <button class="button button-primary" id="victory-reset" type="button">
+                      Play again
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <p class="input-hint" id="play-help">
+                <span aria-hidden="true">↔↕</span>
+                Drag from any point on the tray. Keyboard: focus the tray and use arrow keys.
+              </p>
+            </div>
+
+            <aside class="play-sidebar" aria-label="Play controls and model status">
+              <div class="objective-card">
+                <div class="objective-icon color-orange" data-color="orange" aria-hidden="true">✦</div>
+                <div>
+                  <span class="card-kicker">CURRENT ROUTE</span>
+                  <strong id="objective-title">Find 2 sun markers</strong>
+                  <span id="objective-detail">The tray remains solid after the first match.</span>
+                </div>
+              </div>
+
+              <div class="control-row">
+                <button class="button button-secondary" id="reset-button" type="button">
+                  <span aria-hidden="true">↺</span> Reset
+                </button>
+                <button class="button button-primary" id="replay-button" type="button">
+                  <span aria-hidden="true">▶</span> Auto replay
+                </button>
+              </div>
+
+              <div class="model-readout" aria-live="polite">
+                <div>
+                  <span class="readout-label">MODEL</span>
+                  <strong id="model-state">Loading</strong>
+                </div>
+                <div>
+                  <span class="readout-label">LAST EVENT</span>
+                  <strong id="last-event">None yet</strong>
+                </div>
+                <div>
+                  <span class="readout-label">INDEPENDENT SOLVER</span>
+                  <strong id="solver-state">Calculating</strong>
+                </div>
+                <div>
+                  <span class="readout-label">SHORTEST ROUTE</span>
+                  <strong id="solver-route">—</strong>
+                </div>
+                <div class="hash-row">
+                  <span class="readout-label">STATE HASH</span>
+                  <code id="state-hash">—</code>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section
+          class="mode-panel audit-panel"
+          id="audit-panel"
+          role="tabpanel"
+          aria-labelledby="audit-tab"
+          hidden
+        >
+          <div class="panel-heading audit-heading">
+            <div>
+              <p class="section-label">READ-ONLY LEVEL TOOL</p>
+              <h1>Spread Audit</h1>
+              <p class="panel-summary">
+                Regions and density checks make “looks scattered” measurable.
+              </p>
+            </div>
+            <span class="audit-pass" id="audit-pass">
+              <span aria-hidden="true">✓</span>
+              <span>Calculating</span>
+            </span>
+          </div>
+
+          <div class="audit-layout">
+            <div class="audit-board-block">
+              <div class="board-frame audit-board-frame">
+                <div
+                  class="board-grid audit-board is-loading"
+                  id="audit-board"
+                  role="img"
+                  aria-label="Passenger spread across a ten by ten board divided into nine audit regions."
+                >
+                  <span class="board-loading">Reading level…</span>
+                </div>
+              </div>
+              <div class="color-legend" id="color-legend" aria-label="Passenger pattern legend"></div>
+            </div>
+
+            <div class="audit-report">
+              <section class="report-section" aria-labelledby="color-metrics-title">
+                <div class="report-section-heading">
+                  <div>
+                    <span class="card-kicker">PER COLOR</span>
+                    <h2 id="color-metrics-title">Separation checks</h2>
+                  </div>
+                  <span class="metric-note">actual / limit</span>
+                </div>
+                <div class="color-metrics" id="color-metrics"></div>
+              </section>
+
+              <section class="report-section" aria-labelledby="global-metrics-title">
+                <div class="report-section-heading">
+                  <div>
+                    <span class="card-kicker">ALL PASSENGERS</span>
+                    <h2 id="global-metrics-title">Global density</h2>
+                  </div>
+                </div>
+                <div class="global-metrics" id="global-metrics"></div>
+              </section>
+
+              <div class="audit-footnote" id="audit-footnote">
+                Metrics are calculated from level JSON; this tab never mutates the puzzle model.
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="app-footer">
+        <span><i aria-hidden="true"></i> DOM grid view</span>
+        <span>Integer model · no physics · no external assets</span>
+      </footer>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+    <script type="module" src="./src/app.mjs"></script>
+  </body>
+</html>
