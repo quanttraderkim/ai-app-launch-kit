@@ -68,6 +68,18 @@ first playable proof의 필수 gate는 `LVL-*`, `MOV-*`, `COL-*`, `EVT-*`, `WIN-
 
 `EXAMPLE-001`은 위 두 파일이 모든 `LVL-*`, `GEN-DIST-001`, `GEN-CLUSTER-001`, `GEN-REGION-001`, `GEN-2X2-001`, `GEN-GLOBAL-*`, `REV-*`, `SOL-TRACE-001`을 통과하는지 검사한다. `EXAMPLE-002`는 표의 고정 기대값을 직접 비교해 validator가 항상 빈 성공을 반환하는 오류를 잡는다. `EXAMPLE-003`은 독립 solver를 실행하고 탐색 상태 수와 찾은 해답 길이를 테스트 로그에 남긴다.
 
+## 웹 proof의 solver 실행 slice
+
+아래 항목은 `WebDemo`가 solver 계약을 문서에만 두지 않고 tutorial에서 실행하는지 확인한다. 이 작은 slice가 통과해도 `spread-demo-002`의 `SOL-INDEPENDENT-001`, generator와 repair가 끝난 것은 아니다.
+
+| ID | 합격 조건 |
+| --- | --- |
+| `SOL-KEY-001` | 수집이나 장치 변화 없이 한 칸 갔다 되돌아오면 replay hash의 tick 이력은 달라도 solver transposition key는 초기값과 같다. |
+| `SOL-TUTORIAL-001` | `solutionTrace`를 제거한 `tutorial-001`을 독립 BFS가 같은 MoveResolver로 6 cell step 안에 해결하고, solver action을 새 게임에 replay하면 승리한다. |
+| `SOL-ASTAR-001` | admissible Manhattan lower bound를 사용하는 A*도 tutorial을 6 cell step으로 해결하며 BFS보다 더 긴 해답을 최적이라고 반환하지 않는다. |
+| `SOL-STATUS-001` | state budget 1에서는 `validation-inconclusive`, frontier를 모두 소진한 격리 fixture에서는 `unsolvable`을 반환해 두 상태를 구분한다. |
+| `DIFF-VECTOR-001` | tutorial의 optimal/recorded/slack은 6/6/0이고 방향 전환 3, 즉시 역전 0, 수집 2를 보고한다. 사용자 자료 없이 Easy/Hard 문자열을 생성하지 않는다. |
+
 ## 공개 예시와 완료 기준
 
 `IP-001`은 사람이 확인하는 공개 전 점검이다. 상용 게임 명칭은 출처를 식별하는 README, AGENTS와 References의 설명 문맥에서만 nominative reference로 허용한다. 프로젝트 제목, 제품 UI, 마케팅 문구와 샘플 레벨 ID에는 그 명칭이나 상표를 사용하지 않는다. 실제 레벨 좌표, 추출·트레이싱한 캐릭터나 UI, 음원, 영상 프레임, 상표 그래픽 또는 유료 에셋은 예시 폴더에 없어야 하며, 자체 JSON, 중립적인 색 ID와 자체 문장만 사용한다.

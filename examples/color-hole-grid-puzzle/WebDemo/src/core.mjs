@@ -2,6 +2,13 @@ const clone = (value) => JSON.parse(JSON.stringify(value));
 
 const pointKey = ({ x, y }) => `${x},${y}`;
 const compareIds = (a, b) => a.id.localeCompare(b.id, "en");
+const SEARCH_CLONE = Symbol("search-clone");
+const SEARCH_DIRECTIONS = Object.freeze([
+  Object.freeze({ name: "right", x: 1, y: 0 }),
+  Object.freeze({ name: "down", x: 0, y: 1 }),
+  Object.freeze({ name: "left", x: -1, y: 0 }),
+  Object.freeze({ name: "up", x: 0, y: -1 }),
+]);
 
 export function fnv1a32(text) {
   let hash = 0x811c9dc5;
@@ -152,7 +159,13 @@ export function buildOrthogonalSweep(from, target) {
 }
 
 export class PuzzleGame {
-  constructor(level) {
+  constructor(level, internalMode = null, searchState = null) {
+    if (internalMode === SEARCH_CLONE) {
+      this.level = level;
+      this.events = [];
+      this.state = clone(searchState);
+      return;
+    }
     const validation = validateLevel(level);
     if (!validation.valid) throw new Error(`LEVEL_INVALID\n${validation.errors.join("\n")}`);
     this.level = clone(level);
@@ -228,6 +241,30 @@ export class PuzzleGame {
       passengers: state.passengers.map((passenger) => ({ id: passenger.id, cell: passenger.cell })),
     };
     return fnv1a32(canonicalString(hashInput)).toString(16).padStart(8, "0");
+  }
+
+  getSearchKey() {
+    const state = this.getSnapshot();
+    return canonicalString({
+      status: state.status,
+      holes: state.holes
+        .map((hole) =>
+          hole.runtimeStatus === "Removed"
+            ? { id: hole.id, runtimeStatus: hole.runtimeStatus }
+            : {
+                id: hole.id,
+                anchor: hole.anchor,
+                filledSlots: hole.filledSlots,
+                runtimeStatus: hole.runtimeStatus,
+              },
+        )
+        .sort(compareIds),
+      passengers: state.passengers.map((passenger) => ({ id: passenger.id, cell: passenger.cell })),
+    });
+  }
+
+  cloneForSearch() {
+    return new PuzzleGame(this.level, SEARCH_CLONE, this.state);
   }
 
   moveToward(holeId, target) {
@@ -387,6 +424,300 @@ export class PuzzleGame {
       ...clone(fields),
     });
   }
+}
+
+function reconstructActions(nodes, goalIndex) {
+  const actions = [];
+  let cursor = goalIndex;
+  while (cursor > 0) {
+    actions.push(nodes[cursor].action);
+    cursor = nodes[cursor].parent;
+  }
+  return actions.reverse();
+}
+
+function solverResult(status, fields) {
+  return {
+    status,
+    solved: status === "solved",
+    conclusive: status !== "validation-inconclusive",
+    ...fields,
+  };
+}
+
+class MinHeap {
+  constructor() {
+    this.items = [];
+  }
+
+  get length() {
+    return this.items.length;
+  }
+
+  push(item) {
+    this.items.push(item);
+    let index = this.items.length - 1;
+    while (index > 0) {
+      const parent = Math.floor((index - 1) / 2);
+      if (this.#compare(this.items[parent], item) <= 0) break;
+      this.items[index] = this.items[parent];
+      index = parent;
+    }
+    this.items[index] = item;
+  }
+
+  pop() {
+    if (this.items.length === 0) return null;
+    const first = this.items[0];
+    const last = this.items.pop();
+    if (this.items.length === 0) return first;
+    let index = 0;
+    while (true) {
+      const left = index * 2 + 1;
+      const right = left + 1;
+      if (left >= this.items.length) break;
+      let child = left;
+      if (right < this.items.length && this.#compare(this.items[right], this.items[left]) < 0) {
+        child = right;
+      }
+      if (this.#compare(this.items[child], last) >= 0) break;
+      this.items[index] = this.items[child];
+      index = child;
+    }
+    this.items[index] = last;
+    return first;
+  }
+
+  #compare(left, right) {
+    return left.priority - right.priority || left.depth - right.depth || left.order - right.order;
+  }
+}
+
+function searchLowerBound(game) {
+  const snapshot = game.getSnapshot();
+  const colors = new Set(snapshot.passengers.map((passenger) => passenger.colorId));
+  let total = 0;
+  for (const colorId of colors) {
+    const passengers = snapshot.passengers.filter((passenger) => passenger.colorId === colorId);
+    const holes = snapshot.activeHoles.filter((hole) => hole.colorId === colorId);
+    let colorBound = 0;
+    for (const passenger of passengers) {
+      let closest = Number.POSITIVE_INFINITY;
+      for (const hole of holes) {
+        for (let slotIndex = 0; slotIndex < hole.shape.length; slotIndex += 1) {
+          if (hole.filledSlots.includes(slotIndex)) continue;
+          const offset = hole.shape[slotIndex];
+          const collectionAnchor = {
+            x: passenger.cell.x - offset.x,
+            y: passenger.cell.y - offset.y,
+          };
+          closest = Math.min(
+            closest,
+            Math.abs(hole.anchor.x - collectionAnchor.x) +
+              Math.abs(hole.anchor.y - collectionAnchor.y),
+          );
+        }
+      }
+      colorBound = Math.max(colorBound, closest);
+    }
+    if (Number.isFinite(colorBound)) total += colorBound;
+  }
+  return total;
+}
+
+export function solveLevel(level, options = {}) {
+  const configuredBudget = level?.generation?.solverValidation?.maximumVisitedStates;
+  const configuredAlgorithm = level?.generation?.solverValidation?.algorithm;
+  const maximumVisitedStates = options.maximumVisitedStates ?? configuredBudget ?? 100_000;
+  const algorithm = options.algorithm ?? configuredAlgorithm ?? "bfs";
+  if (!Number.isInteger(maximumVisitedStates) || maximumVisitedStates < 1) {
+    throw new RangeError("maximumVisitedStates must be a positive integer.");
+  }
+  if (!new Set(["bfs", "a-star"]).has(algorithm)) {
+    throw new RangeError(`Unsupported solver algorithm: ${algorithm}`);
+  }
+
+  const initial = new PuzzleGame(level);
+  const initialSnapshot = initial.getSnapshot();
+  const initialKey = initial.getSearchKey();
+  const nodes = [{ game: initial, parent: -1, action: null, depth: 0, key: initialKey }];
+  const bestDepth = new Map([[initialKey, 0]]);
+  const queue = algorithm === "bfs" ? [0] : null;
+  const heap = algorithm === "a-star" ? new MinHeap() : null;
+  if (heap) heap.push({ nodeIndex: 0, priority: searchLowerBound(initial), depth: 0, order: 0 });
+  let queueCursor = 0;
+  let insertionOrder = 1;
+  let expandedStates = 0;
+  let generatedTransitions = 0;
+  let legalTransitions = 0;
+  let maximumFrontier = 1;
+  let deepestDepth = 0;
+
+  const frontierLength = () => (queue ? queue.length - queueCursor : heap.length);
+  const pushFrontier = (nodeIndex, priority, depth) => {
+    if (queue) queue.push(nodeIndex);
+    else heap.push({ nodeIndex, priority, depth, order: insertionOrder++ });
+  };
+  const popFrontier = () => (queue ? queue[queueCursor++] : heap.pop()?.nodeIndex ?? null);
+
+  if (initialSnapshot.status === "won") {
+    return solverResult("solved", {
+      algorithm,
+      actions: [],
+      solutionCellSteps: 0,
+      visitedStates: 1,
+      expandedStates: 0,
+      generatedTransitions: 0,
+      legalTransitions: 0,
+      averageLegalBranching: 0,
+      maximumFrontier: 1,
+      finalStateHash: initial.getStateHash(),
+    });
+  }
+
+  while (frontierLength() > 0) {
+    const nodeIndex = popFrontier();
+    const node = nodes[nodeIndex];
+    if (bestDepth.get(node.key) !== node.depth) continue;
+
+    if (node.game.getSnapshot().status === "won") {
+      return solverResult("solved", {
+        algorithm,
+        actions: reconstructActions(nodes, nodeIndex),
+        solutionCellSteps: node.depth,
+        visitedStates: bestDepth.size,
+        expandedStates,
+        generatedTransitions,
+        legalTransitions,
+        averageLegalBranching: expandedStates === 0 ? 0 : legalTransitions / expandedStates,
+        maximumFrontier,
+        finalStateHash: node.game.getStateHash(),
+      });
+    }
+
+    expandedStates += 1;
+    const snapshot = node.game.getSnapshot();
+    const activeHoles = snapshot.activeHoles.sort(compareIds);
+
+    for (const hole of activeHoles) {
+      for (const direction of SEARCH_DIRECTIONS) {
+        generatedTransitions += 1;
+        const nextAnchor = {
+          x: hole.anchor.x + direction.x,
+          y: hole.anchor.y + direction.y,
+        };
+        const candidate = node.game.cloneForSearch();
+        const result = candidate.moveAlongPath(hole.id, [hole.anchor, nextAnchor]);
+        if (!result.moved) continue;
+        legalTransitions += 1;
+
+        const key = candidate.getSearchKey();
+        const nextDepth = node.depth + 1;
+        const knownDepth = bestDepth.get(key);
+        if (knownDepth !== undefined && knownDepth <= nextDepth) continue;
+        if (knownDepth === undefined && bestDepth.size >= maximumVisitedStates) {
+          return solverResult("validation-inconclusive", {
+            algorithm,
+            reason: "state-budget-exhausted",
+            actions: [],
+            solutionCellSteps: null,
+            visitedStates: bestDepth.size,
+            expandedStates,
+            generatedTransitions,
+            legalTransitions,
+            averageLegalBranching: legalTransitions / expandedStates,
+            maximumFrontier,
+            deepestDepth,
+          });
+        }
+
+        bestDepth.set(key, nextDepth);
+        const action = {
+          holeId: hole.id,
+          direction: direction.name,
+          fromAnchor: { ...hole.anchor },
+          toAnchor: nextAnchor,
+          collections: result.events
+            .filter((event) => event.type === "PassengerCollected")
+            .map((event) => ({ passengerId: event.passengerId, slotIndex: event.slotIndex })),
+          holeRemoved: result.events.some((event) => event.type === "HoleRemoved"),
+        };
+        nodes.push({ game: candidate, parent: nodeIndex, action, depth: nextDepth, key });
+        const childIndex = nodes.length - 1;
+        const priority = nextDepth + (heap ? searchLowerBound(candidate) : 0);
+        pushFrontier(childIndex, priority, nextDepth);
+        deepestDepth = Math.max(deepestDepth, nextDepth);
+        maximumFrontier = Math.max(maximumFrontier, frontierLength());
+      }
+    }
+  }
+
+  return solverResult("unsolvable", {
+    algorithm,
+    reason: "state-space-exhausted",
+    actions: [],
+    solutionCellSteps: null,
+    visitedStates: bestDepth.size,
+    expandedStates,
+    generatedTransitions,
+    legalTransitions,
+    averageLegalBranching: expandedStates === 0 ? 0 : legalTransitions / expandedStates,
+    maximumFrontier,
+    deepestDepth,
+  });
+}
+
+function directionBetween(left, right) {
+  return `${Math.sign(right.x - left.x)},${Math.sign(right.y - left.y)}`;
+}
+
+export function analyzeLevelDifficulty(level, solver = solveLevel(level)) {
+  const trace = level.solutionTrace ?? [];
+  let recordedCellSteps = 0;
+  let recordedDirectionChanges = 0;
+  let recordedReversals = 0;
+  let recordedCollections = 0;
+
+  for (const step of trace) {
+    const path = step.path ?? [];
+    recordedCellSteps += Math.max(0, path.length - 1);
+    recordedCollections += step.expectedCollections?.length ?? 0;
+    let previousDirection = null;
+    for (let index = 1; index < path.length; index += 1) {
+      const direction = directionBetween(path[index - 1], path[index]);
+      if (previousDirection && direction !== previousDirection) {
+        recordedDirectionChanges += 1;
+        const [px, py] = previousDirection.split(",").map(Number);
+        const [cx, cy] = direction.split(",").map(Number);
+        if (px === -cx && py === -cy) recordedReversals += 1;
+      }
+      previousDirection = direction;
+    }
+  }
+
+  const optimalCellSteps = solver.solved ? solver.solutionCellSteps : null;
+  return {
+    levelId: level.id,
+    solverStatus: solver.status,
+    metrics: {
+      optimalCellSteps,
+      recordedCellSteps,
+      recordedSolutionSlack:
+        optimalCellSteps === null ? null : recordedCellSteps - optimalCellSteps,
+      recordedPathConsistent:
+        optimalCellSteps === null || recordedCellSteps >= optimalCellSteps,
+      recordedDirectionChanges,
+      recordedReversals,
+      recordedCollections,
+      activeHoleChoicesAtStart: level.holes?.length ?? 0,
+      visitedStates: solver.visitedStates,
+      expandedStates: solver.expandedStates,
+      maximumFrontier: solver.maximumFrontier,
+      averageLegalBranching: solver.averageLegalBranching,
+      searchEffortBits: Math.log2(Math.max(1, solver.visitedStates)),
+    },
+    solver,
+  };
 }
 
 function regionIndex(level, cell) {

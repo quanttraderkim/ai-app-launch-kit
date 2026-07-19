@@ -16,6 +16,24 @@
 
 YouTube 링크는 영상 게시자가 변경하거나 삭제할 수 있다. 프로젝트에는 영상 파일, 오디오, 자막 전문, 썸네일, frame capture를 저장하지 않고 URL, 타임스탬프와 짧은 추상 관찰만 남긴다. 구현에 중요한 규칙은 반드시 자체 spec과 test로 다시 정의한다.
 
+## Algorithm Research Sources
+
+아래 자료는 2026-07-19에 확인한 algorithm 설계 근거다. 논문의 level이나 표현물을 복제하는 자료가 아니라 탐색, 생성, 난이도 측정 방법을 비교하기 위한 1차 출처로만 사용한다.
+
+[Hart, Nilsson, Raphael의 A* 원 논문](https://doi.org/10.1109/TSSC.1968.300136)은 admissible heuristic을 쓰는 최소 비용 graph search의 출발점이다. 이 예제의 A*도 실제 MoveResolver 전이를 edge로 사용하고 실제 남은 이동량을 넘지 않는 Manhattan lower bound만 heuristic으로 사용한다.
+
+[Bridson의 fast Poisson-disk sampling 논문](https://www.cs.ubc.ca/~rbridson/docs/bridson-siggraph07-poissondisk.pdf)은 최소 간격을 가진 blue-noise 배치가 단순 균일 난수의 군집을 줄이는 기반을 제공한다. 이 프로젝트는 연속 Euclidean sampler를 그대로 복사하지 않고 정수 grid, Manhattan 거리, region reservation과 seeded tie-break에 맞춰 자체 알고리즘을 명시한다.
+
+[Data Driven Sokoban Puzzle Generation with Monte Carlo Tree Search](https://doi.org/10.1609/aiide.v12i1.12859)는 simulated play로 풀이 가능성을 유지하며 사용자 연구로 난이도 feature를 보정한 사례다. [Procedurally Puzzling](https://doi.org/10.1609/aiide.v20i1.31873)은 solver 반복량과 사람의 주관적 난이도 관계를 조사했고, [Generalized Entropy and Solution Information](https://doi.org/10.1609/aiide.v20i1.31872)은 player knowledge를 고려한 puzzle entropy 계열 지표를 제안한다. 이 근거 때문에 `AlgorithmSystem.md`는 최단 길이 하나 대신 raw difficulty vector를 저장하고 사용자 관찰 전에는 임의 난이도 label을 확정하지 않는다.
+
+[Interactive Constrained MAP-Elites의 dungeon design 연구](https://arxiv.org/abs/1906.05175)와 [PCG through Quality Diversity](https://arxiv.org/abs/1907.04053)는 한 개 fitness 최고점보다 여러 behavior 구간의 좋은 후보를 보존하는 방법을 설명한다. 이 프로젝트의 후속 archive는 최단 길이, branching, 방향 전환, 분산과 Hole 수를 behavior dimension 후보로 삼되 모든 후보에 independent solver gate를 유지한다.
+
+[PCGRL 논문](https://arxiv.org/abs/2001.09212)은 level design을 순차적인 reinforcement-learning 문제로 구성한다. 학습과 reward 검증 비용이 큰 방식이므로 현재 kit에는 구현하지 않고, deterministic constraint generator와 solver 자료가 충분히 쌓인 뒤 비교 대상으로만 둔다.
+
+[Google OR-Tools의 constraint programming 설명](https://developers.google.com/optimization/cp)과 [CP-SAT status 계약](https://developers.google.com/optimization/cp/cp_solver)은 integer constraint 배치 prototype의 후보 구현 근거다. 특히 `FEASIBLE`, `INFEASIBLE`, `UNKNOWN`을 구분하는 방식은 이 프로젝트가 solver budget 초과를 `validation-inconclusive`로 처리하는 원칙과 맞는다. 정적 CP-SAT 배치 통과는 gameplay solver를 대신하지 않는다.
+
+[Microsoft Research의 TrueSkill 원 논문](https://www.microsoft.com/en-us/research/publication/trueskilltm-a-bayesian-skill-rating-system/)은 실력의 평균만이 아니라 불확실성을 함께 추적하는 Bayesian rating 사례다. 이 프로젝트에서 직접 multiplayer rating을 구현한다는 뜻은 아니며, 장기적으로 다음 레벨을 고르는 player model이 적은 관찰을 확정적 실력으로 오판하지 않게 하는 참고다.
+
 ## Evidence Classification
 
 `Observed`는 공개 화면에서 직접 확인할 수 있는 제한된 동작, `Official description`은 스토어 또는 Help Center가 설명한 기능, `Project decision`은 이 게임이 재미와 구현 명확성을 위해 독자적으로 선택한 규칙, `Hypothesis`는 아직 재현하지 못한 추정이다. GameSpec에는 마지막 구현 규칙만 쓰되, 외부 사실처럼 보일 수 있는 항목은 이 분류와 source를 연결한다.

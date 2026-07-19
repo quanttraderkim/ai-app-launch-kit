@@ -4,9 +4,11 @@ import test from "node:test";
 
 import {
   PuzzleGame,
+  analyzeLevelDifficulty,
   buildOrthogonalSweep,
   calculateSpreadReport,
   fnv1a32,
+  solveLevel,
   validateLevel,
 } from "../src/core.mjs";
 
@@ -215,6 +217,92 @@ test("reset reconstructs the canonical initial state", () => {
   game.reset();
   assert.equal(game.getStateHash(), initialHash);
   assert.equal(game.getEventLog().length, 0);
+});
+
+test("solver transposition key ignores reversible tick history", () => {
+  const game = new PuzzleGame(tutorial);
+  const initialSearchKey = game.getSearchKey();
+  const initialReplayHash = game.getStateHash();
+  game.moveAlongPath("orange-hole", [
+    { x: 0, y: 2 },
+    { x: 1, y: 2 },
+    { x: 0, y: 2 },
+  ]);
+  assert.equal(game.getSearchKey(), initialSearchKey);
+  assert.notEqual(game.getStateHash(), initialReplayHash);
+});
+
+test("independent BFS solves tutorial without reading its recorded trace", () => {
+  const fixture = clone(tutorial);
+  delete fixture.solutionTrace;
+  const result = solveLevel(fixture, { algorithm: "bfs" });
+  assert.equal(result.status, "solved");
+  assert.equal(result.solutionCellSteps, 6);
+  assert.equal(result.actions.length, 6);
+  assert.equal(result.visitedStates, 64);
+
+  const replay = new PuzzleGame(fixture);
+  for (const action of result.actions) {
+    const move = replay.moveAlongPath(action.holeId, [action.fromAnchor, action.toAnchor]);
+    assert.equal(move.moved, true);
+  }
+  assert.equal(replay.getSnapshot().status, "won");
+
+  const recordedReplay = new PuzzleGame(fixture);
+  recordedReplay.moveAlongPath("orange-hole", tutorial.solutionTrace[0].path);
+  assert.equal(recordedReplay.getSearchKey(), replay.getSearchKey());
+  assert.notEqual(recordedReplay.getStateHash(), replay.getStateHash());
+});
+
+test("A-star uses the same resolver and preserves the optimal tutorial length", () => {
+  const result = solveLevel(tutorial, { algorithm: "a-star" });
+  assert.equal(result.status, "solved");
+  assert.equal(result.solutionCellSteps, 6);
+  assert.ok(result.visitedStates <= 43);
+});
+
+test("solver budget exhaustion is inconclusive rather than unsolvable", () => {
+  const result = solveLevel(tutorial, { maximumVisitedStates: 1 });
+  assert.equal(result.status, "validation-inconclusive");
+  assert.equal(result.conclusive, false);
+  assert.equal(result.reason, "state-budget-exhausted");
+});
+
+test("exhausting a finite isolated fixture reports unsolvable", () => {
+  const fixture = clone(tutorial);
+  fixture.board = {
+    width: 3,
+    height: 4,
+    origin: "top-left",
+    mask: ["001", "000", "100", "101"],
+  };
+  fixture.holes[0].anchor = { x: 0, y: 2 };
+  fixture.passengers[0].cell = { x: 2, y: 0 };
+  fixture.passengers[1].cell = { x: 2, y: 3 };
+  delete fixture.solutionTrace;
+  assert.equal(validateLevel(fixture).valid, true);
+
+  const result = solveLevel(fixture, { maximumVisitedStates: 100 });
+  assert.equal(result.status, "unsolvable");
+  assert.equal(result.reason, "state-space-exhausted");
+  assert.equal(result.visitedStates, 1);
+});
+
+test("difficulty report stays a metric vector instead of an arbitrary label", () => {
+  const report = analyzeLevelDifficulty(tutorial);
+  assert.equal(report.solverStatus, "solved");
+  assert.deepEqual(
+    {
+      optimal: report.metrics.optimalCellSteps,
+      recorded: report.metrics.recordedCellSteps,
+      slack: report.metrics.recordedSolutionSlack,
+      changes: report.metrics.recordedDirectionChanges,
+      reversals: report.metrics.recordedReversals,
+      collections: report.metrics.recordedCollections,
+    },
+    { optimal: 6, recorded: 6, slack: 0, changes: 3, reversals: 0, collections: 2 },
+  );
+  assert.equal(Object.hasOwn(report, "difficultyLabel"), false);
 });
 
 test("spread report matches the fixed anti-clumping expectations", () => {

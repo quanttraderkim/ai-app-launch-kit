@@ -4,9 +4,9 @@
 
 ## Required Reading
 
-작업 전에 kit 루트의 `README.md`, `AGENTS.md`, `08-security/SanitizationPolicy.md`를 읽고, 이 폴더에서는 `README.md`, `Docs/PRD.md`, `Docs/GameSpec.md`, `Docs/TechnicalArchitecture.md`, `Docs/LevelFormat.md`, `Docs/LevelDesignAndGeneration.md`, `Docs/AcceptanceTests.md`, `Docs/ImplementationPlan.md`, `Docs/DecisionLog.md` 순서로 읽는다. 특정 규칙의 외부 근거가 필요할 때만 `Docs/References.md`를 확인한다.
+작업 전에 kit 루트의 `README.md`, `AGENTS.md`, `08-security/SanitizationPolicy.md`를 읽고, 이 폴더에서는 `README.md`, `Docs/PRD.md`, `Docs/GameSpec.md`, `Docs/TechnicalArchitecture.md`, `Docs/AlgorithmSystem.md`, `Docs/LevelFormat.md`, `Docs/LevelDesignAndGeneration.md`, `Docs/AcceptanceTests.md`, `Docs/ImplementationPlan.md`, `Docs/DecisionLog.md` 순서로 읽는다. 특정 규칙의 외부 근거가 필요할 때만 `Docs/References.md`를 확인한다.
 
-문서 사이의 우선순위는 플레이어 가치와 범위는 `Docs/PRD.md`, 게임 규칙은 `Docs/GameSpec.md`, 코드 책임과 상태 흐름은 `Docs/TechnicalArchitecture.md`, 직렬화 형식은 `Docs/LevelFormat.md`와 JSON Schema, 완료 판정은 `Docs/AcceptanceTests.md` 순이다. 충돌을 발견하면 조용히 한 문서를 덮어쓰지 말고 `Docs/DecisionLog.md`에 충돌과 선택을 기록한다.
+문서 사이의 우선순위는 플레이어 가치와 범위는 `Docs/PRD.md`, 게임 규칙은 `Docs/GameSpec.md`, 코드 책임과 상태 흐름은 `Docs/TechnicalArchitecture.md`, solver·난이도·생성 정책은 `Docs/AlgorithmSystem.md`, 직렬화 형식은 `Docs/LevelFormat.md`와 JSON Schema, 완료 판정은 `Docs/AcceptanceTests.md` 순이다. 충돌을 발견하면 조용히 한 문서를 덮어쓰지 말고 `Docs/DecisionLog.md`에 충돌과 선택을 기록한다.
 
 ## Non-Negotiable Game Rules
 
@@ -16,7 +16,7 @@ Hole의 각 shape offset은 독립된 로컬 수용 슬롯이다. 같은 색 승
 
 게임 런타임과 레벨 검증 도구 또는 solver는 가능한 한 동일한 `MoveResolver`와 이벤트 해석기를 사용한다. 컬렉션 순회 순서와 동시 이벤트 순서는 명시적으로 고정하여 플랫폼이나 프레임률에 따라 결과가 달라지지 않게 한다. 레벨은 코드에 하드코딩하지 않고 문서화된 데이터 형식으로 로드한다.
 
-레벨 생성 작업에서는 자연어 감각으로 Passenger를 자유 배치하지 않는다. `Docs/LevelDesignAndGeneration.md`의 seed, 색별 거리·군집·region, 전체 region·2×2·3×3 제약과 repair 순서를 따르고, 기록 trace replay와 독립 solver를 모두 통과하지 못한 후보는 폐기한다. 생성 도구는 first playable proof를 통과한 뒤에만 구현한다.
+레벨 생성 작업에서는 자연어 감각으로 Passenger를 자유 배치하지 않는다. `Docs/AlgorithmSystem.md`와 `Docs/LevelDesignAndGeneration.md`의 seed, 색별 거리·군집·region, 전체 region·2×2·3×3 제약과 repair 순서를 따르고, 기록 trace replay와 독립 solver를 모두 통과하지 못한 후보는 폐기한다. 생성 도구는 first playable proof를 통과한 뒤에만 구현한다.
 
 ## Working Method
 

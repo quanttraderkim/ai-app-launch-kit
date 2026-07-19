@@ -26,7 +26,7 @@ scripts/bootstrap-project-docs.sh /path/to/my-app
 
 ## Examples
 
-[Unity iOS Minimal Example](examples/unity-ios-minimal/README.md)은 큰 binary나 signing 파일 없이 Unity iOS 프로젝트의 최소 구조를 설명합니다. [Color-Hole Grid Puzzle Example](examples/color-hole-grid-puzzle/README.md)은 상용 퍼즐의 표현물을 복제하지 않고 색상 수집형 격자 퍼즐을 독자적으로 설계하는 예시입니다. 문서 계약, 결정론적 이동, 같은 색과 전체 Passenger가 몰리지 않는 레벨 배치, repair와 solver 검증 절차에 더해 브라우저에서 직접 확인할 수 있는 작은 playable proof를 포함합니다.
+[Unity iOS Minimal Example](examples/unity-ios-minimal/README.md)은 큰 binary나 signing 파일 없이 Unity iOS 프로젝트의 최소 구조를 설명합니다. [Color-Hole Grid Puzzle Example](examples/color-hole-grid-puzzle/README.md)은 상용 퍼즐의 표현물을 복제하지 않고 색상 수집형 격자 퍼즐을 독자적으로 설계하는 예시입니다. 문서 계약, 결정론적 이동, 같은 색과 전체 Passenger가 몰리지 않는 레벨 배치, repair, BFS/A* solver, 난이도 vector와 공정한 level sequencing 정책에 더해 브라우저에서 직접 확인할 수 있는 작은 playable proof를 포함합니다.
 
 ## Non-Negotiables
 

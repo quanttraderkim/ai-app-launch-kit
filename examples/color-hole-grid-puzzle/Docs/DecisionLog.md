@@ -19,6 +19,11 @@
 | 2026-07-12 | Accepted | 후속 레벨 생성기는 자연어 자유 배치 대신 seeded farthest-point와 색별 거리·군집·region, 전체 region·2×2·3×3 제약을 사용한다. | 같은 색끼리 떨어져 있어도 여러 색 Passenger 전체가 한곳에 몰리는 문제까지 재현 가능한 수치와 자동 테스트로 막는다. | first proof 통과 뒤 `GEN-*` acceptance ID 순서로 구현한다. |
 | 2026-07-12 | Accepted | 생성 레벨은 기록된 forward trace replay와 trace를 읽지 않는 독립 solver를 모두 통과해야 채택한다. | 보기 좋은 분산 배치가 실제 이동 규칙에서는 풀리지 않는 문제를 막고, 기록 trace 자체의 오류도 잡는다. | solver budget 초과는 성공이나 unsolvable이 아니라 validation-inconclusive로 거부한다. |
 | 2026-07-12 | Accepted | 문서 계약의 실행 가능성을 확인하는 첫 웹 proof는 `tutorial-001`만 플레이하고, `spread-demo-002`는 읽기 전용 분산 검사 화면으로 분리한다. | first proof에 생성기·solver·타이머를 구현한 것처럼 보이지 않으면서 핵심 이동과 비군집 지표를 각각 검증할 수 있다. | 웹 core 테스트와 모바일 브라우저 smoke 결과를 handoff에 기록하고 Unity proof와 혼동하지 않는다. |
+| 2026-07-19 | Accepted | 퍼즐 알고리즘을 결정론적 규칙, 난이도 검증, 제약 기반 생성, 표현 엔진으로 분리하고 flood fill·중력·새 블록 queue는 match-and-fall 변형에서만 활성화한다. | 전달받은 일반 매치 퍼즐 구조를 현재 color-hole 규칙에 그대로 섞으면 다른 게임이 되고 solver와 replay 계약도 달라진다. | 새 mechanic은 `AlgorithmSystem.md`의 선택 모듈과 spec-test-data 세트로 추가한다. |
+| 2026-07-19 | Accepted | 난이도 적응은 이미 검증된 다음 레벨 선택과 공개된 힌트·assist에 사용하고, 현재 보드의 색이나 방해물 확률을 플레이 도중 몰래 바꾸지 않는다. | 숨은 확률 조작은 같은 seed와 입력의 결과를 흔들고 플레이어가 배운 규칙, solver 증명과 공정성 검토를 약화한다. | 플레이 데이터가 생기면 skill uncertainty와 difficulty vector를 보정하되 assist 정책을 제품 규칙에 공개한다. |
+| 2026-07-19 | Accepted | 웹 core에 같은 MoveResolver를 쓰는 BFS/A*, tick을 제외한 transposition key와 raw difficulty vector를 추가하고 tutorial만 독립 solver로 인증한다. | 문서의 solver 계약을 작은 실제 코드로 검증하면서 사람 데이터 없는 Easy/Hard 임의 분류를 피한다. | `SOL-KEY-001`, `SOL-TUTORIAL-001`, `SOL-ASTAR-001`, `DIFF-VECTOR-001`을 고정 회귀 테스트로 유지한다. |
+| 2026-07-19 | Deferred | `spread-demo-002`의 independent solver 인증과 자동 생성기는 아직 완료로 표시하지 않는다. | 현재 구현의 진단 A*가 50,000 state budget에서 `validation-inconclusive`였고, 기록 trace와 분산 지표 통과만으로 독립 풀이를 증명할 수 없다. | macro-action A*, stronger admissible heuristic, deadlock pruning과 sidecar report를 구현한 뒤 전체 `SOL-*` gate를 다시 실행한다. |
+| 2026-07-19 | Deferred | CP-SAT 배치와 MAP-Elites archive는 deterministic generator와 큰 레벨 solver가 안정된 뒤 구현한다. | 정적 제약 만족과 다양한 후보 보관은 유용하지만 실제 gameplay solvability를 대신하지 않으며 현재 proof의 필수 범위도 아니다. | generator rejection 자료와 difficulty vector가 쌓이면 작은 prototype으로 비교한다. |
 
 ## New Decision Template
 

@@ -215,11 +215,13 @@ spawn queue indices
 timer를 제외한 objective state
 ```
 
+탐색용 transposition key에는 논리 tick, event sequence, 마지막 거부 이유와 animation 상태처럼 이후 합법 행동을 바꾸지 않는 이력을 넣지 않습니다. Replay 검증용 state hash에는 tick을 포함할 수 있으므로 두 키의 목적과 이름을 분리합니다. 오른쪽으로 한 칸 이동했다 되돌아온 상태는 replay 이력은 다르지만 solver에서는 같은 상태입니다.
+
 타이머는 first proof 범위 밖이며, 이후 도입해도 Solver는 먼저 시간을 무시하고 논리적 풀이 가능성을 검사합니다. 시간 제한 적합성은 solver의 최소 경로 길이와 실제 플레이 테스트 분포를 별도로 사용합니다.
 
 사람 수집과 장치 발동은 이동 경로 중간에 일어나므로 Solver의 action을 단순 `(hole, destination)`으로 정의하면 안 됩니다. 한 칸 전이를 기본 edge로 사용하거나, capture/event가 없는 연속 구간만 하나의 macro action으로 합칩니다.
 
-A* 또는 IDA*를 사용하고 state hash transposition table로 반복 상태를 제거합니다. 첫 heuristic은 과도하게 영리하게 만들기보다 남은 슬롯 수와 한 action에서 가능한 최대 수집량으로 만든 하한부터 시작합니다.
+작은 보드는 BFS로 최단 경로를 증명하고, 큰 보드는 A* 또는 IDA*와 transposition table로 반복 상태를 제거합니다. A* heuristic은 실제 남은 비용을 넘지 않는 하한이어야 합니다. 첫 구현은 각 색의 남은 Passenger가 유효 슬롯에 들어갈 수 있는 anchor까지의 Manhattan 거리 하한을 사용하며, 성능이 부족하면 event가 없는 연속 이동을 macro action으로 합치고 deadlock pruning을 추가합니다. Solver 선택, 난이도 vector와 생성 algorithm의 전체 계약은 `AlgorithmSystem.md`를 따릅니다.
 
 ## Generator Contract
 

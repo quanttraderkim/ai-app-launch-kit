@@ -2,7 +2,7 @@
 
 이 문서는 색상별 승객을 같은 색 Hole의 로컬 슬롯에 수집하는 독자적인 격자 퍼즐의 레벨 제작 계약이다. 장르의 일반적인 아이디어만 참고하며, 특정 상용 게임의 이름, 레벨 배치, 캐릭터, UI, 음향, 애니메이션 또는 추출한 에셋을 복제하지 않는다. 예제의 색 이름과 단순 도형은 규칙을 설명하기 위한 중립적인 데이터다.
 
-첫 playable proof의 범위는 수동 작성한 `tutorial-001`, 1×2 Hole 하나, Passenger 두 명, 비활성 타이머뿐이다. `timeLimitSeconds: 0`은 카운트다운과 시간 실패를 만들지 않는다는 뜻이다. seeded 배치, repair, reverse generation과 독립 solver는 이 proof를 통과한 뒤 구현하는 후속 범위이며, 생성기 구현을 첫 플레이 검증의 선행 조건으로 만들지 않는다. 다만 첫 레벨에도 설계 검증용 generation 설정과 trace를 함께 두어 후속 도구가 같은 파일을 재사용할 수 있게 한다.
+첫 playable proof의 범위는 수동 작성한 `tutorial-001`, 1×2 Hole 하나, Passenger 두 명, 비활성 타이머뿐이다. `timeLimitSeconds: 0`은 카운트다운과 시간 실패를 만들지 않는다는 뜻이다. Seeded 배치, repair와 reverse generation은 이 proof를 통과한 뒤 구현하는 후속 범위이며, 생성기 구현을 첫 플레이 검증의 선행 조건으로 만들지 않는다. 웹 예제에는 solver 계약을 실행해 보는 tutorial용 독립 BFS/A* slice가 있지만, 큰 다중-Hole 레벨 검증과 generator 완료를 뜻하지 않는다. 첫 레벨의 generation 설정과 trace는 후속 도구가 같은 파일을 재사용할 수 있게 유지한다.
 
 ## 좌표와 권위 상태
 

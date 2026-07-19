@@ -1,4 +1,4 @@
-import { PuzzleGame, calculateSpreadReport } from "./core.mjs";
+import { PuzzleGame, analyzeLevelDifficulty, calculateSpreadReport } from "./core.mjs";
 
 const LEVEL_URLS = {
   tutorial: new URL("../data/tutorial-001.json", import.meta.url),
@@ -27,6 +27,8 @@ const els = {
   objectiveDetail: document.querySelector("#objective-detail"),
   modelState: document.querySelector("#model-state"),
   lastEvent: document.querySelector("#last-event"),
+  solverState: document.querySelector("#solver-state"),
+  solverRoute: document.querySelector("#solver-route"),
   stateHash: document.querySelector("#state-hash"),
   resetButton: document.querySelector("#reset-button"),
   replayButton: document.querySelector("#replay-button"),
@@ -44,6 +46,7 @@ let tutorialLevel;
 let spreadLevel;
 let game;
 let spreadReport;
+let difficultyReport;
 let playLayers;
 let auditLayers;
 let pointerDrag = null;
@@ -64,16 +67,29 @@ async function initialize() {
   ]);
 
   game = new PuzzleGame(tutorialLevel);
+  difficultyReport = analyzeLevelDifficulty(tutorialLevel);
   spreadReport = normalizeSpreadReport(calculateSpreadReport(spreadLevel), spreadLevel);
   playLayers = buildBoard(els.playBoard, tutorialLevel.board);
   auditLayers = buildBoard(els.auditBoard, spreadLevel.board, { audit: true });
 
   renderPlay({ announceEffects: false });
+  renderSolverAudit();
   renderSpreadAudit();
   exposeTestHook();
   setControlsDisabled(false);
   setLoadState("ready", "Model ready");
   els.app.setAttribute("aria-busy", "false");
+}
+
+function renderSolverAudit() {
+  const solved = difficultyReport.solverStatus === "solved";
+  const metrics = difficultyReport.metrics;
+  els.solverState.textContent = solved
+    ? `${difficultyReport.solver.algorithm.toUpperCase()} · ${metrics.visitedStates} states`
+    : difficultyReport.solverStatus;
+  els.solverRoute.textContent = solved
+    ? `${metrics.optimalCellSteps} cells · ${metrics.recordedSolutionSlack} slack`
+    : "No certified route";
 }
 
 async function loadJson(url) {
@@ -643,6 +659,7 @@ function exposeTestHook() {
     autoSolve,
     setTab: (tabName) => setTab(tabName, { focus: false }),
     getDistributionReport: () => cloneData(spreadReport),
+    getDifficultyReport: () => cloneData(difficultyReport),
   });
 }
 
